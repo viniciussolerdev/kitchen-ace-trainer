@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button";
 
-const Header = () => {
+interface HeaderProps {
+  onGlossaryClick: () => void;
+}
+
+const Header = ({ onGlossaryClick }: HeaderProps) => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
   return (
     <header className="bg-gradient-to-r from-secondary to-background shadow-sm border-b border-border">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,15 +25,30 @@ const Header = () => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#receitas" className="text-muted-foreground hover:text-primary transition-colors font-nunito">
+            <button
+              onClick={() => scrollToSection("receitas")}
+              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+            >
               Receitas
-            </a>
-            <a href="#como-funciona" className="text-muted-foreground hover:text-primary transition-colors font-nunito">
+            </button>
+            <button
+              onClick={() => scrollToSection("como-funciona")}
+              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+            >
               Como Funciona
-            </a>
-            <a href="#badges" className="text-muted-foreground hover:text-primary transition-colors font-nunito">
+            </button>
+            <button
+              onClick={() => scrollToSection("badges")}
+              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+            >
               Badges
-            </a>
+            </button>
+            <button
+              onClick={onGlossaryClick}
+              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+            >
+              Glossário
+            </button>
           </nav>
 
           <div className="flex items-center space-x-4">

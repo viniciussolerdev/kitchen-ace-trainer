@@ -2,88 +2,35 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import RecipeCard from "@/components/RecipeCard";
 import BadgeCard from "@/components/BadgeCard";
-import GuidedModeCard from "@/components/GuidedModeCard";
+import RecipeModal from "@/components/RecipeModal";
+import GlossaryModal from "@/components/GlossaryModal";
 import { Button } from "@/components/ui/button";
+import { useCooking } from "@/contexts/CookingContext";
 import heroImage from "@/assets/hero-cooking.jpg";
 import threeIngredientsImage from "@/assets/three-ingredients.jpg";
 import badgeBronze from "@/assets/badge-bronze.png";
 import badgeSilver from "@/assets/badge-silver.png";
 
 const Index = () => {
-  const [showGuidedMode, setShowGuidedMode] = useState(false);
+  const { recipes, badges, completedRecipes } = useCooking();
+  const [selectedRecipe, setSelectedRecipe] = useState<string | null>(null);
+  const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
 
-  const recipes = [
-    {
-      title: "Pasta ao Tomate",
-      ingredients: ["Massa", "Tomate", "Manjericão"],
-      time: "15 min",
-      difficulty: "Fácil"
-    },
-    {
-      title: "Omelete Cremosa",
-      ingredients: ["Ovos", "Queijo", "Manteiga"],
-      time: "8 min",
-      difficulty: "Fácil"
-    },
-    {
-      title: "Salada Caprese",
-      ingredients: ["Tomate", "Mussarela", "Manjericão"],
-      time: "5 min",
-      difficulty: "Muito Fácil"
-    },
-    {
-      title: "Arroz de Alho",
-      ingredients: ["Arroz", "Alho", "Azeite"],
-      time: "20 min",
-      difficulty: "Fácil"
-    },
-    {
-      title: "Panqueca Simples",
-      ingredients: ["Farinha", "Leite", "Ovo"],
-      time: "12 min",
-      difficulty: "Médio"
-    },
-    {
-      title: "Bruschetta Italiana",
-      ingredients: ["Pão", "Tomate", "Alho"],
-      time: "10 min",
-      difficulty: "Fácil"
-    },
-  ];
+  const handleCookRecipe = (recipeId: string) => {
+    setSelectedRecipe(recipeId);
+  };
 
-  const badges = [
-    {
-      title: "Iniciante",
-      description: "Complete sua primeira receita",
-      icon: "ri-star-line",
-      unlocked: true,
-      image: badgeBronze
-    },
-    {
-      title: "Cozinheiro",
-      description: "Complete 5 receitas",
-      icon: "ri-fire-line",
-      unlocked: true,
-      image: badgeSilver
-    },
-    {
-      title: "Chef",
-      description: "Complete 10 receitas",
-      icon: "ri-medal-line",
-      unlocked: false
-    },
-    {
-      title: "Mestre",
-      description: "Complete 25 receitas",
-      icon: "ri-trophy-line",
-      unlocked: false
-    },
-  ];
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
-      <Header />
-      
+      <Header onGlossaryClick={() => setIsGlossaryOpen(true)} />
+
       <main>
         {/* Hero Section */}
         <section className="relative pt-16 pb-24 overflow-hidden">
@@ -92,32 +39,46 @@ const Index = () => {
               <div className="space-y-8">
                 <div className="inline-flex items-center px-4 py-2 bg-accent/10 rounded-full">
                   <i className="ri-sparkling-line text-accent mr-2"></i>
-                  <span className="text-accent font-semibold text-sm font-nunito">Plano Gratuito Disponível</span>
+                  <span className="text-accent font-semibold text-sm font-nunito">
+                    Plano Gratuito Disponível
+                  </span>
                 </div>
-                
+
                 <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                  De <span className="text-accent">Ansioso</span> a <span className="text-primary font-pacifico">Confiante</span> na Cozinha
+                  De <span className="text-accent">Ansioso</span> a{" "}
+                  <span className="text-primary font-pacifico">Confiante</span> na Cozinha
                 </h1>
-                
+
                 <p className="text-xl text-muted-foreground font-nunito leading-relaxed">
-                  Transforme sua experiência culinária com <strong className="text-foreground">receitas de 3 ingredientes</strong>, 
-                  modo guiado passo a passo e timer integrado. Sem desperdício, sem ansiedade.
+                  Transforme sua experiência culinária com{" "}
+                  <strong className="text-foreground">receitas de 3 ingredientes</strong>, modo guiado
+                  passo a passo e timer integrado. Sem desperdício, sem ansiedade.
                 </p>
-                
+
                 <div className="flex flex-wrap gap-4">
-                  <Button variant="hero" size="lg" onClick={() => setShowGuidedMode(true)}>
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    onClick={() => scrollToSection("receitas")}
+                  >
                     <i className="ri-play-circle-line mr-2"></i>
-                    Experimentar Modo Guiado
-                  </Button>
-                  <Button variant="outline" size="lg">
-                    <i className="ri-book-open-line mr-2"></i>
                     Ver Receitas
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setIsGlossaryOpen(true)}
+                  >
+                    <i className="ri-book-open-line mr-2"></i>
+                    Glossário
+                  </Button>
                 </div>
-                
+
                 <div className="flex items-center space-x-8 pt-4">
                   <div>
-                    <p className="text-3xl font-bold text-foreground font-poppins">200+</p>
+                    <p className="text-3xl font-bold text-foreground font-poppins">
+                      {recipes.length}+
+                    </p>
                     <p className="text-muted-foreground font-nunito">Receitas Simples</p>
                   </div>
                   <div>
@@ -125,17 +86,19 @@ const Index = () => {
                     <p className="text-muted-foreground font-nunito">Tempo Médio</p>
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-foreground font-poppins">3</p>
-                    <p className="text-muted-foreground font-nunito">Ingredientes</p>
+                    <p className="text-3xl font-bold text-foreground font-poppins">
+                      {completedRecipes.length}
+                    </p>
+                    <p className="text-muted-foreground font-nunito">Completadas</p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="relative">
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                  <img 
-                    src={heroImage} 
-                    alt="Pessoa cozinhando com confiança" 
+                  <img
+                    src={heroImage}
+                    alt="Pessoa cozinhando com confiança"
                     className="w-full h-auto"
                   />
                 </div>
@@ -146,17 +109,8 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Guided Mode Section */}
-        {showGuidedMode && (
-          <section className="py-16 bg-secondary/50">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-              <GuidedModeCard />
-            </div>
-          </section>
-        )}
-
         {/* How It Works */}
-        <section id="como-funciona" className="py-20 bg-background">
+        <section id="como-funciona" className="py-20 bg-background scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-foreground mb-4 font-poppins">
@@ -166,33 +120,39 @@ const Index = () => {
                 Três passos simples para você cozinhar com confiança
               </p>
             </div>
-            
+
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center space-y-4">
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary to-primary-glow rounded-2xl flex items-center justify-center shadow-lg">
                   <i className="ri-file-list-3-line text-primary-foreground text-3xl"></i>
                 </div>
-                <h3 className="text-xl font-bold text-foreground font-poppins">Escolha uma Receita</h3>
+                <h3 className="text-xl font-bold text-foreground font-poppins">
+                  Escolha uma Receita
+                </h3>
                 <p className="text-muted-foreground font-nunito">
                   Navegue por receitas simples de 3 ingredientes
                 </p>
               </div>
-              
+
               <div className="text-center space-y-4">
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-accent to-accent-light rounded-2xl flex items-center justify-center shadow-lg">
                   <i className="ri-guide-line text-accent-foreground text-3xl"></i>
                 </div>
-                <h3 className="text-xl font-bold text-foreground font-poppins">Ative o Modo Guiado</h3>
+                <h3 className="text-xl font-bold text-foreground font-poppins">
+                  Ative o Modo Guiado
+                </h3>
                 <p className="text-muted-foreground font-nunito">
                   Siga passo a passo com timer integrado
                 </p>
               </div>
-              
+
               <div className="text-center space-y-4">
                 <div className="w-20 h-20 mx-auto bg-gradient-to-br from-success to-success/70 rounded-2xl flex items-center justify-center shadow-lg">
                   <i className="ri-restaurant-line text-success-foreground text-3xl"></i>
                 </div>
-                <h3 className="text-xl font-bold text-foreground font-poppins">Cozinhe com Confiança</h3>
+                <h3 className="text-xl font-bold text-foreground font-poppins">
+                  Cozinhe com Confiança
+                </h3>
                 <p className="text-muted-foreground font-nunito">
                   Ganhe badges e evolua suas habilidades
                 </p>
@@ -202,7 +162,10 @@ const Index = () => {
         </section>
 
         {/* Recipes Section */}
-        <section id="receitas" className="py-20 bg-gradient-to-b from-background to-secondary">
+        <section
+          id="receitas"
+          className="py-20 bg-gradient-to-b from-background to-secondary scroll-mt-20"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-12">
               <div>
@@ -213,33 +176,34 @@ const Index = () => {
                   Simples, rápidas e deliciosas
                 </p>
               </div>
-              
-              <div className="relative">
-                <img 
-                  src={threeIngredientsImage} 
-                  alt="3 ingredientes" 
+
+              <div className="relative hidden md:block">
+                <img
+                  src={threeIngredientsImage}
+                  alt="3 ingredientes"
                   className="w-32 h-32 rounded-2xl shadow-lg object-cover"
                 />
               </div>
             </div>
-            
+
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recipes.map((recipe, index) => (
-                <RecipeCard key={index} {...recipe} />
+              {recipes.map((recipe) => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipeId={recipe.id}
+                  title={recipe.title}
+                  ingredients={recipe.ingredients}
+                  time={recipe.time}
+                  difficulty={recipe.difficulty}
+                  onCook={() => handleCookRecipe(recipe.id)}
+                />
               ))}
-            </div>
-            
-            <div className="text-center mt-12">
-              <Button variant="outline" size="lg">
-                <i className="ri-add-line mr-2"></i>
-                Ver Todas as Receitas
-              </Button>
             </div>
           </div>
         </section>
 
         {/* Badges Section */}
-        <section id="badges" className="py-20 bg-background">
+        <section id="badges" className="py-20 bg-background scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-foreground mb-4 font-poppins">
@@ -248,11 +212,30 @@ const Index = () => {
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-nunito">
                 Desbloqueie badges conforme você evolui na cozinha
               </p>
+              <div className="mt-4">
+                <span className="inline-flex items-center px-4 py-2 bg-primary/10 text-primary rounded-full font-semibold font-nunito">
+                  <i className="ri-trophy-line mr-2"></i>
+                  {completedRecipes.length} receitas completadas
+                </span>
+              </div>
             </div>
-            
+
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {badges.map((badge, index) => (
-                <BadgeCard key={index} {...badge} />
+                <BadgeCard
+                  key={badge.id}
+                  title={badge.title}
+                  description={badge.description}
+                  icon={badge.icon}
+                  requiredRecipes={badge.requiredRecipes}
+                  image={
+                    index === 0
+                      ? badgeBronze
+                      : index === 1
+                      ? badgeSilver
+                      : undefined
+                  }
+                />
               ))}
             </div>
           </div>
@@ -268,13 +251,23 @@ const Index = () => {
               Comece gratuitamente agora e transforme sua experiência na cozinha
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="outline" size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0">
+              <Button
+                variant="outline"
+                size="lg"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0"
+                onClick={() => scrollToSection("receitas")}
+              >
                 <i className="ri-rocket-line mr-2"></i>
                 Começar Grátis Agora
               </Button>
-              <Button variant="ghost" size="lg" className="text-primary-foreground hover:bg-primary-foreground/10">
+              <Button
+                variant="ghost"
+                size="lg"
+                className="text-primary-foreground hover:bg-primary-foreground/10"
+                onClick={() => setIsGlossaryOpen(true)}
+              >
                 <i className="ri-question-line mr-2"></i>
-                Saber Mais
+                Ver Glossário
               </Button>
             </div>
           </div>
@@ -296,43 +289,102 @@ const Index = () => {
                 Transformando o aprendizado culinário com receitas simples e modo guiado.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
+                <a
+                  href="#"
+                  className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
+                >
                   <i className="ri-facebook-fill"></i>
                 </a>
-                <a href="#" className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
+                <a
+                  href="#"
+                  className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
+                >
                   <i className="ri-instagram-line"></i>
                 </a>
-                <a href="#" className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-primary-foreground/20 transition-colors">
+                <a
+                  href="#"
+                  className="w-10 h-10 bg-primary-foreground/10 rounded-full flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
+                >
                   <i className="ri-youtube-line"></i>
                 </a>
               </div>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4 font-poppins">Recursos</h4>
               <ul className="space-y-2 font-nunito">
-                <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Receitas</a></li>
-                <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Modo Guiado</a></li>
-                <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Glossário</a></li>
-                <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Badges</a></li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection("receitas")}
+                    className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  >
+                    Receitas
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => setIsGlossaryOpen(true)}
+                    className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  >
+                    Glossário
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => scrollToSection("badges")}
+                    className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  >
+                    Badges
+                  </button>
+                </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4 font-poppins">Suporte</h4>
               <ul className="space-y-2 font-nunito">
-                <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Central de Ajuda</a></li>
-                <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Contato</a></li>
-                <li><a href="#" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">Planos</a></li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  >
+                    Central de Ajuda
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  >
+                    Contato
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                  >
+                    Planos
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
-          
+
           <div className="mt-12 pt-8 border-t border-primary-foreground/20 text-center text-primary-foreground/60 text-sm font-nunito">
             © 2024 Cozinheiro de Bolso. Todos os direitos reservados.
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      <RecipeModal
+        recipe={selectedRecipe ? recipes.find((r) => r.id === selectedRecipe) || null : null}
+        isOpen={!!selectedRecipe}
+        onClose={() => setSelectedRecipe(null)}
+      />
+
+      <GlossaryModal isOpen={isGlossaryOpen} onClose={() => setIsGlossaryOpen(false)} />
     </div>
   );
 };
