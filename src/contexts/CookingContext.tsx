@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Recipe {
   id: string;
@@ -29,34 +32,64 @@ interface CookingContextType {
   badges: Badge[];
   completedRecipes: string[];
   favoriteRecipes: string[];
+  user: User | null;
+  session: Session | null;
   completeRecipe: (recipeId: string) => void;
   toggleFavorite: (recipeId: string) => void;
   getRecipeById: (id: string) => Recipe | undefined;
+  signOut: () => Promise<void>;
 }
 
 const CookingContext = createContext<CookingContextType | undefined>(undefined);
 
 export const CookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [completedRecipes, setCompletedRecipes] = useState<string[]>([]);
   const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
 
-  // Load from localStorage
+  // Auth state
   useEffect(() => {
-    const saved = localStorage.getItem("cookingProgress");
-    if (saved) {
-      const data = JSON.parse(saved);
-      setCompletedRecipes(data.completed || []);
-      setFavoriteRecipes(data.favorites || []);
-    }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Load from localStorage per user
+  useEffect(() => {
+    if (user) {
+      const saved = localStorage.getItem(`cookingProgress_${user.id}`);
+      if (saved) {
+        const data = JSON.parse(saved);
+        setCompletedRecipes(data.completed || []);
+        setFavoriteRecipes(data.favorites || []);
+      }
+    } else {
+      setCompletedRecipes([]);
+      setFavoriteRecipes([]);
+    }
+  }, [user]);
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem("cookingProgress", JSON.stringify({
-      completed: completedRecipes,
-      favorites: favoriteRecipes,
-    }));
-  }, [completedRecipes, favoriteRecipes]);
+    if (user) {
+      localStorage.setItem(`cookingProgress_${user.id}`, JSON.stringify({
+        completed: completedRecipes,
+        favorites: favoriteRecipes,
+      }));
+    }
+  }, [completedRecipes, favoriteRecipes, user]);
 
   const recipes: Recipe[] = [
     {
@@ -174,17 +207,35 @@ export const CookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   ];
 
   const completeRecipe = (recipeId: string) => {
+    if (!user) return;
+    
     if (!completedRecipes.includes(recipeId)) {
       setCompletedRecipes([...completedRecipes, recipeId]);
+      toast({
+        title: "Receita Concluída! 🎉",
+        description: "Parabéns! Continue cozinhando para desbloquear badges.",
+      });
     }
   };
 
   const toggleFavorite = (recipeId: string) => {
+    if (!user) return;
+    
     if (favoriteRecipes.includes(recipeId)) {
       setFavoriteRecipes(favoriteRecipes.filter(id => id !== recipeId));
     } else {
       setFavoriteRecipes([...favoriteRecipes, recipeId]);
     }
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setCompletedRecipes([]);
+    setFavoriteRecipes([]);
+    toast({
+      title: "Logout realizado",
+      description: "Até logo!",
+    });
   };
 
   const getRecipeById = (id: string) => {
@@ -198,9 +249,12 @@ export const CookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         badges,
         completedRecipes,
         favoriteRecipes,
+        user,
+        session,
         completeRecipe,
         toggleFavorite,
         getRecipeById,
+        signOut,
       }}
     >
       {children}

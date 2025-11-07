@@ -1,10 +1,15 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useCooking } from "@/contexts/CookingContext";
 
 interface HeaderProps {
   onGlossaryClick: () => void;
 }
 
 const Header = ({ onGlossaryClick }: HeaderProps) => {
+  const { user, signOut } = useCooking();
+  const navigate = useNavigate();
+  
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -25,40 +30,53 @@ const Header = ({ onGlossaryClick }: HeaderProps) => {
           </div>
 
           <nav className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => scrollToSection("receitas")}
-              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
-            >
-              Receitas
-            </button>
-            <button
-              onClick={() => scrollToSection("como-funciona")}
-              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
-            >
-              Como Funciona
-            </button>
-            <button
-              onClick={() => scrollToSection("badges")}
-              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
-            >
-              Badges
-            </button>
-            <button
-              onClick={onGlossaryClick}
-              className="text-muted-foreground hover:text-primary transition-colors font-nunito"
-            >
-              Glossário
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => scrollToSection("receitas")}
+                  className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+                >
+                  Receitas
+                </button>
+                <button
+                  onClick={() => scrollToSection("como-funciona")}
+                  className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+                >
+                  Como Funciona
+                </button>
+                <button
+                  onClick={onGlossaryClick}
+                  className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+                >
+                  Glossário
+                </button>
+                <button
+                  onClick={() => scrollToSection("badges")}
+                  className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+                >
+                  Badges
+                </button>
+              </>
+            ) : null}
           </nav>
 
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="default">
-              Entrar
-            </Button>
-            <Button variant="hero" size="default">
-              <i className="ri-rocket-line mr-2"></i>
-              Começar Grátis
-            </Button>
+            {user ? (
+              <Button variant="outline" size="default" onClick={signOut}>
+                <i className="ri-logout-box-line mr-2"></i>
+                Sair
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" size="default" onClick={() => navigate("/auth")}>
+                  Entrar
+                </Button>
+                <Button variant="hero" size="default" onClick={() => navigate("/auth")}>
+                  <i className="ri-rocket-line mr-2"></i>
+                  Começar Grátis
+                </Button>
+              </>
+            )}
           </div>
 
           <div className="md:hidden">

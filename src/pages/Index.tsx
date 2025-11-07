@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import RecipeCard from "@/components/RecipeCard";
 import BadgeCard from "@/components/BadgeCard";
@@ -12,9 +13,16 @@ import badgeBronze from "@/assets/badge-bronze.png";
 import badgeSilver from "@/assets/badge-silver.png";
 
 const Index = () => {
-  const { recipes, badges, completedRecipes } = useCooking();
+  const { recipes, badges, completedRecipes, user } = useCooking();
   const [selectedRecipe, setSelectedRecipe] = useState<string | null>(null);
   const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && window.location.pathname === "/auth") {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const handleCookRecipe = (recipeId: string) => {
     setSelectedRecipe(recipeId);
@@ -59,10 +67,16 @@ const Index = () => {
                   <Button
                     variant="hero"
                     size="lg"
-                    onClick={() => scrollToSection("receitas")}
+                    onClick={() => {
+                      if (!user) {
+                        navigate("/auth");
+                      } else {
+                        scrollToSection("receitas");
+                      }
+                    }}
                   >
                     <i className="ri-play-circle-line mr-2"></i>
-                    Ver Receitas
+                    {user ? "Ver Receitas" : "Começar Agora - Grátis"}
                   </Button>
                   <Button
                     variant="outline"
@@ -162,84 +176,113 @@ const Index = () => {
         </section>
 
         {/* Recipes Section */}
-        <section
-          id="receitas"
-          className="py-20 bg-gradient-to-b from-background to-secondary scroll-mt-20"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-12">
-              <div>
-                <h2 className="text-4xl font-bold text-foreground mb-4 font-poppins">
-                  Receitas de 3 Ingredientes
+        {user ? (
+          <section
+            id="receitas"
+            className="py-20 bg-gradient-to-b from-background to-secondary scroll-mt-20"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between mb-12">
+                <div>
+                  <h2 className="text-4xl font-bold text-foreground mb-4 font-poppins">
+                    Receitas de 3 Ingredientes
+                  </h2>
+                  <p className="text-xl text-muted-foreground font-nunito">
+                    Simples, rápidas e deliciosas
+                  </p>
+                </div>
+
+                <div className="relative hidden md:block">
+                  <img
+                    src={threeIngredientsImage}
+                    alt="3 ingredientes"
+                    className="w-32 h-32 rounded-2xl shadow-lg object-cover"
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recipes.map((recipe) => (
+                  <RecipeCard
+                    key={recipe.id}
+                    recipeId={recipe.id}
+                    title={recipe.title}
+                    ingredients={recipe.ingredients}
+                    time={recipe.time}
+                    difficulty={recipe.difficulty}
+                    onCook={() => handleCookRecipe(recipe.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section
+            id="receitas"
+            className="py-20 bg-gradient-to-b from-background to-secondary scroll-mt-20"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <div className="bg-white rounded-3xl shadow-xl p-12 max-w-2xl mx-auto">
+                <i className="ri-lock-line text-6xl text-primary mb-6 block"></i>
+                <h2 className="text-3xl font-bold text-foreground mb-4 font-poppins">
+                  Faça Login para Acessar as Receitas
                 </h2>
-                <p className="text-xl text-muted-foreground font-nunito">
-                  Simples, rápidas e deliciosas
+                <p className="text-muted-foreground mb-8 font-nunito text-lg">
+                  Crie sua conta gratuita e tenha acesso a todas as receitas, modo guiado e badges!
                 </p>
-              </div>
-
-              <div className="relative hidden md:block">
-                <img
-                  src={threeIngredientsImage}
-                  alt="3 ingredientes"
-                  className="w-32 h-32 rounded-2xl shadow-lg object-cover"
-                />
+                <Button
+                  size="lg"
+                  variant="hero"
+                  onClick={() => navigate("/auth")}
+                >
+                  <i className="ri-user-line mr-2"></i>
+                  Criar Conta Grátis
+                </Button>
               </div>
             </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recipes.map((recipe) => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipeId={recipe.id}
-                  title={recipe.title}
-                  ingredients={recipe.ingredients}
-                  time={recipe.time}
-                  difficulty={recipe.difficulty}
-                  onCook={() => handleCookRecipe(recipe.id)}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Badges Section */}
-        <section id="badges" className="py-20 bg-background scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-foreground mb-4 font-poppins">
-                Níveis Culinários
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-nunito">
-                Desbloqueie badges conforme você evolui na cozinha
-              </p>
-              <div className="mt-4">
-                <span className="inline-flex items-center px-4 py-2 bg-primary/10 text-primary rounded-full font-semibold font-nunito">
-                  <i className="ri-trophy-line mr-2"></i>
-                  {completedRecipes.length} receitas completadas
-                </span>
+        {user ? (
+          <section id="badges" className="py-20 bg-background scroll-mt-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold text-foreground mb-4 font-poppins">
+                  Níveis Culinários
+                </h2>
+                <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-nunito">
+                  Desbloqueie badges conforme você evolui na cozinha
+                </p>
+                <div className="mt-4">
+                  <span className="inline-flex items-center px-4 py-2 bg-primary/10 text-primary rounded-full font-semibold font-nunito">
+                    <i className="ri-trophy-line mr-2"></i>
+                    {completedRecipes.length} receitas completadas
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {badges.map((badge, index) => (
+                  <BadgeCard
+                    key={badge.id}
+                    title={badge.title}
+                    description={badge.description}
+                    icon={badge.icon}
+                    requiredRecipes={badge.requiredRecipes}
+                    image={
+                      index === 0
+                        ? badgeBronze
+                        : index === 1
+                        ? badgeSilver
+                        : undefined
+                    }
+                  />
+                ))}
               </div>
             </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {badges.map((badge, index) => (
-                <BadgeCard
-                  key={badge.id}
-                  title={badge.title}
-                  description={badge.description}
-                  icon={badge.icon}
-                  requiredRecipes={badge.requiredRecipes}
-                  image={
-                    index === 0
-                      ? badgeBronze
-                      : index === 1
-                      ? badgeSilver
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-br from-primary to-primary-glow">
@@ -255,10 +298,16 @@ const Index = () => {
                 variant="outline"
                 size="lg"
                 className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0"
-                onClick={() => scrollToSection("receitas")}
+                onClick={() => {
+                  if (!user) {
+                    navigate("/auth");
+                  } else {
+                    scrollToSection("receitas");
+                  }
+                }}
               >
                 <i className="ri-rocket-line mr-2"></i>
-                Começar Grátis Agora
+                {user ? "Ver Receitas" : "Começar Grátis Agora"}
               </Button>
               <Button
                 variant="ghost"
