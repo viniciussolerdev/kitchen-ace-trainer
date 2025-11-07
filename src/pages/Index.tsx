@@ -11,6 +11,11 @@ import heroImage from "@/assets/hero-cooking.jpg";
 import threeIngredientsImage from "@/assets/three-ingredients.jpg";
 import badgeBronze from "@/assets/badge-bronze.png";
 import badgeSilver from "@/assets/badge-silver.png";
+import showcaseRecipes from "@/assets/showcase-recipes.jpg";
+import showcaseGuided from "@/assets/showcase-guided.jpg";
+import showcaseBadges from "@/assets/showcase-badges.jpg";
+import showcaseSuccess from "@/assets/showcase-success.jpg";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const Index = () => {
   const { recipes, badges, completedRecipes, user } = useCooking();
@@ -171,6 +176,115 @@ const Index = () => {
                   Ganhe badges e evolua suas habilidades
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Visual Showcase Section */}
+        <section className="py-20 bg-gradient-to-b from-secondary to-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-foreground mb-4 font-poppins">
+                Veja Como Funciona na Prática
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-nunito">
+                Descubra como o Cozinheiro de Bolso transforma sua experiência na cozinha
+              </p>
+            </div>
+
+            <Carousel className="w-full max-w-5xl mx-auto" opts={{ align: "start", loop: true }}>
+              <CarouselContent>
+                <CarouselItem className="md:basis-1/2 lg:basis-1/2">
+                  <div className="p-2">
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+                      <img
+                        src={showcaseRecipes}
+                        alt="Tela de receitas com 3 ingredientes"
+                        className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">
+                          <h3 className="text-2xl font-bold mb-2 font-poppins">Receitas Simples</h3>
+                          <p className="font-nunito">Navegue por receitas deliciosas de apenas 3 ingredientes</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                <CarouselItem className="md:basis-1/2 lg:basis-1/2">
+                  <div className="p-2">
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+                      <img
+                        src={showcaseGuided}
+                        alt="Modo guiado com timer integrado"
+                        className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-accent/90 via-accent/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-accent-foreground">
+                          <h3 className="text-2xl font-bold mb-2 font-poppins">Modo Guiado</h3>
+                          <p className="font-nunito">Siga cada passo com timer integrado e instruções claras</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                <CarouselItem className="md:basis-1/2 lg:basis-1/2">
+                  <div className="p-2">
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+                      <img
+                        src={showcaseBadges}
+                        alt="Sistema de badges e progressão"
+                        className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-success/90 via-success/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-success-foreground">
+                          <h3 className="text-2xl font-bold mb-2 font-poppins">Evolua e Conquiste</h3>
+                          <p className="font-nunito">Ganhe badges e acompanhe sua evolução culinária</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+
+                <CarouselItem className="md:basis-1/2 lg:basis-1/2">
+                  <div className="p-2">
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+                      <img
+                        src={showcaseSuccess}
+                        alt="Cozinhando com confiança"
+                        className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">
+                          <h3 className="text-2xl font-bold mb-2 font-poppins">Resultados Reais</h3>
+                          <p className="font-nunito">Transforme sua confiança na cozinha com pratos incríveis</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+
+            <div className="text-center mt-12">
+              <Button
+                size="lg"
+                variant="hero"
+                onClick={() => {
+                  if (!user) {
+                    navigate("/auth");
+                  } else {
+                    scrollToSection("receitas");
+                  }
+                }}
+              >
+                <i className="ri-arrow-right-circle-line mr-2"></i>
+                {user ? "Ir para Receitas" : "Começar Agora - Grátis"}
+              </Button>
             </div>
           </div>
         </section>
