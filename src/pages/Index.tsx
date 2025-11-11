@@ -18,7 +18,7 @@ import showcaseSuccess from "@/assets/showcase-success.jpg";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const Index = () => {
-  const { recipes, badges, completedRecipes, user } = useCooking();
+  const { recipes, badges, completedRecipes, user, canAccessRecipe } = useCooking();
   const [selectedRecipe, setSelectedRecipe] = useState<string | null>(null);
   const [isGlossaryOpen, setIsGlossaryOpen] = useState(false);
   const navigate = useNavigate();
@@ -316,17 +316,21 @@ const Index = () => {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recipes.map((recipe) => (
-                  <RecipeCard
-                    key={recipe.id}
-                    recipeId={recipe.id}
-                    title={recipe.title}
-                    ingredients={recipe.ingredients}
-                    time={recipe.time}
-                    difficulty={recipe.difficulty}
-                    onCook={() => handleCookRecipe(recipe.id)}
-                  />
-                ))}
+                {recipes.map((recipe, index) => {
+                  const isLocked = !canAccessRecipe(index);
+                  return (
+                    <RecipeCard
+                      key={recipe.id}
+                      recipeId={recipe.id}
+                      title={recipe.title}
+                      ingredients={recipe.ingredients}
+                      time={recipe.time}
+                      difficulty={recipe.difficulty}
+                      onCook={() => handleCookRecipe(recipe.id)}
+                      isLocked={isLocked}
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>

@@ -56,6 +56,12 @@ const Header = ({ onGlossaryClick }: HeaderProps) => {
                 >
                   Badges
                 </button>
+                <button
+                  onClick={() => navigate("/plans")}
+                  className="text-muted-foreground hover:text-primary transition-colors font-nunito"
+                >
+                  Planos
+                </button>
               </>
             ) : null}
           </nav>

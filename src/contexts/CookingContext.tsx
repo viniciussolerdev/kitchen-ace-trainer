@@ -38,6 +38,9 @@ interface CookingContextType {
   toggleFavorite: (recipeId: string) => void;
   getRecipeById: (id: string) => Recipe | undefined;
   signOut: () => Promise<void>;
+  userPlan: "free" | "premium" | null;
+  refreshUserPlan: () => Promise<void>;
+  canAccessRecipe: (recipeIndex: number) => boolean;
 }
 
 const CookingContext = createContext<CookingContextType | undefined>(undefined);
@@ -48,23 +51,59 @@ export const CookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [session, setSession] = useState<Session | null>(null);
   const [completedRecipes, setCompletedRecipes] = useState<string[]>([]);
   const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
+  const [userPlan, setUserPlan] = useState<"free" | "premium" | null>(null);
 
   // Auth state
+  const refreshUserPlan = async () => {
+    if (!user) {
+      setUserPlan(null);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("user_subscriptions")
+        .select("plan_type")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setUserPlan(data?.plan_type as "free" | "premium" || "free");
+    } catch (error) {
+      console.error("Error fetching user plan:", error);
+      setUserPlan("free");
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          setTimeout(() => {
+            refreshUserPlan();
+          }, 0);
+        } else {
+          setUserPlan(null);
+        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        setTimeout(() => {
+          refreshUserPlan();
+        }, 0);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [user]);
 
   // Load from localStorage per user
   useEffect(() => {
@@ -242,6 +281,12 @@ export const CookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return recipes.find(recipe => recipe.id === id);
   };
 
+  const canAccessRecipe = (recipeIndex: number): boolean => {
+    if (!user) return false;
+    if (userPlan === "premium") return true;
+    return recipeIndex < 3; // Free plan: only first 3 recipes
+  };
+
   return (
     <CookingContext.Provider
       value={{
@@ -255,6 +300,9 @@ export const CookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         toggleFavorite,
         getRecipeById,
         signOut,
+        userPlan,
+        refreshUserPlan,
+        canAccessRecipe,
       }}
     >
       {children}
