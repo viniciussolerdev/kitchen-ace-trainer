@@ -1,0 +1,1 @@
+DROP POLICY "Members can view own salon" ON public.salons;
